@@ -1528,7 +1528,7 @@ nav {
             playsinline
             aria-hidden="true"
         >
-            <source src="{{ asset('videos/hero-video.mp4') }}" type="video/mp4">
+            <source src="{{ asset('Videos/hero-video.mp4') }}" type="video/mp4">
         </video>
         <div class="hero-overlay" aria-hidden="true"></div>
 
