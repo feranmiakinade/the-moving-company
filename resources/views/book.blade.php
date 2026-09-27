@@ -1067,7 +1067,7 @@
                 </p>
 
                 <a href="#booking-form" class="slide-button"
-                   onclick="document.getElementById('vehicle').value='Lexus ES 360'">
+                   onclick="document.getElementById('vehicle').value='Lexus ES 350'">
                     Book This Ride
                     <span>↗</span>
                 </a>
@@ -1173,41 +1173,73 @@
             <h2>Confirm The Details.</h2>
         </div>
 
-        <form class="booking-form" id="bookingForm">
-            <div class="form-row">
-                <div class="form-field">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-field">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" required>
-                </div>
-            </div>
+        <form class="booking-form" id="bookingForm" method="POST" action="{{ route('booking.store') }}">
+    @csrf
 
-            <div class="form-field full">
-                <label for="vehicle">Selected Vehicle</label>
-                <input type="text" id="vehicle" name="vehicle" placeholder="e.g. Toyota Prado">
-            </div>
+    <div class="form-row">
+        <div class="form-field">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="full_name" required>
+        </div>
 
-            <div class="form-row">
-                <div class="form-field">
-                    <label for="pickup-date">Pickup Date</label>
-                    <input type="date" id="pickup-date" name="pickup_date" required>
-                </div>
-                <div class="form-field">
-                    <label for="pickup-location">Pickup Location</label>
-                    <input type="text" id="pickup-location" name="pickup_location" required>
-                </div>
-            </div>
+        <div class="form-field">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+    </div>
 
-            <div class="form-field full">
-                <label for="notes">Additional Notes</label>
-                <textarea id="notes" name="notes" placeholder="Anything we should know?"></textarea>
-            </div>
+    <div class="form-row">
+        <div class="form-field">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" required>
+        </div>
 
-            <button type="submit" class="form-submit">Submit Booking Request</button>
-        </form>
+        <div class="form-field">
+            <label for="vehicle">Selected Vehicle</label>
+            <select id="vehicle" name="vehicle" required>
+                <option value="">Select a vehicle</option>
+                <option value="Toyota Prado">Toyota Prado — ₦135,000/day</option>
+                <option value="Lexus GX 460">Lexus GX 460 — ₦150,000/day</option>
+                <option value="Lexus ES 350">Lexus ES 350 — ₦100,000/day</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-field">
+            <label for="pickup-date">Pickup Date</label>
+            <input type="date" id="pickup-date" name="pickup_date" required>
+        </div>
+
+        <div class="form-field">
+            <label for="return-date">Return Date</label>
+            <input type="date" id="return-date" name="return_date" required>
+        </div>
+    </div>
+
+    <div class="form-field full">
+        <label for="pickup-location">Pickup Location</label>
+        <input type="text" id="pickup-location" name="pickup_location" required>
+    </div>
+
+    <div class="form-field full">
+        <label for="notes">Additional Notes</label>
+        <textarea
+            id="notes"
+            name="notes"
+            placeholder="Anything we should know?"
+        ></textarea>
+    </div>
+
+    <div class="booking-total">
+        <span>Estimated Total</span>
+        <strong id="totalAmount">₦0</strong>
+    </div>
+
+    <button type="submit" class="form-submit">
+        Continue to Payment
+    </button>
+</form>
     </section>
 
    <script>
@@ -1232,48 +1264,47 @@
 
     pickupDate.min = today;
 
+// ---------- BOOKING TOTAL ----------
 
-    /* ---------- BOOKING → WHATSAPP ---------- */
+const vehicleSelect = document.getElementById('vehicle');
+const returnDate = document.getElementById('return-date');
+const totalAmount = document.getElementById('totalAmount');
 
-    const bookingForm = document.getElementById('bookingForm');
+const vehicleRates = {
+    'Toyota Prado': 135000,
+    'Lexus GX 460': 150000,
+    'Lexus ES 350': 100000
+};
 
-    bookingForm.addEventListener('submit', function (event) {
+function calculateTotal() {
+    const vehicle = vehicleSelect.value;
+    const pickup = pickupDate.value;
+    const returnValue = returnDate.value;
 
-        event.preventDefault();
+    if (!vehicle || !pickup || !returnValue) {
+        totalAmount.textContent = '₦0';
+        return;
+    }
 
-        const name = document.getElementById('name').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const vehicle = document.getElementById('vehicle').value.trim();
-        const pickupDateValue = document.getElementById('pickup-date').value;
-        const pickupLocation = document.getElementById('pickup-location').value.trim();
-        const notes = document.getElementById('notes').value.trim();
+    const startDate = new Date(pickup);
+    const endDate = new Date(returnValue);
 
-        const message = `
-Hello The Moving Company 👋
+    const difference = endDate - startDate;
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24)) + 1;
 
-I'd like to make a booking.
+    if (days < 1) {
+        totalAmount.textContent = '₦0';
+        return;
+    }
 
-*Booking Details*
+    const total = vehicleRates[vehicle] * days;
 
-Name: ${name}
-Phone: ${phone}
-Vehicle: ${vehicle || 'Not selected'}
-Pickup Date: ${pickupDateValue}
-Pickup Location: ${pickupLocation}
+    totalAmount.textContent = '₦' + total.toLocaleString('en-NG');
+}
 
-Additional Notes:
-${notes || 'None'}
-
-Please let me know the availability and final price. Thank you.
-        `.trim();
-
-        const whatsappNumber = '2349072793802';
-
-        const whatsappURL =
-            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-        window.open(whatsappURL, '_blank');
-    });
+vehicleSelect.addEventListener('change', calculateTotal);
+pickupDate.addEventListener('change', calculateTotal);
+returnDate.addEventListener('change', calculateTotal);
 
 // ---------- HERO SLIDER ----------
 
