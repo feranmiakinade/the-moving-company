@@ -1290,7 +1290,9 @@ function calculateTotal() {
     const endDate = new Date(returnValue);
 
     const difference = endDate - startDate;
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24)) + 1;
+    const days = Math.floor(
+        difference / (1000 * 60 * 60 * 24)
+    ) + 1;
 
     if (days < 1) {
         totalAmount.textContent = '₦0';
@@ -1305,6 +1307,7 @@ function calculateTotal() {
 vehicleSelect.addEventListener('change', calculateTotal);
 pickupDate.addEventListener('change', calculateTotal);
 returnDate.addEventListener('change', calculateTotal);
+
 
 // ---------- HERO SLIDER ----------
 
