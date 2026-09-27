@@ -14,7 +14,7 @@ WORKDIR /var/www/html
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
-
+RUN php artisan migrate --force
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 RUN a2enmod rewrite
