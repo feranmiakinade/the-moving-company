@@ -1173,7 +1173,7 @@
             <h2>Confirm The Details.</h2>
         </div>
 
-        <form class="booking-form" id="bookingForm" method="POST" action="{{ route('booking.store') }}">
+        <form class="booking-form" id="bookingForm" method="POST" action="https://the-moving-company.onrender.com/book">
     @csrf
 
     <div class="form-row">
